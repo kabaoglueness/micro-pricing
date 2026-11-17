@@ -133,7 +133,7 @@ Proje sıfır harici bağımlılık ilkesiyle tasarlanmıştır. Karmaşık derl
 Terminal veya komut istemcisinde proje dizinine gidip dahili Python HTTP sunucusunu başlatın:
 
 ```bash
-git clone https://github.com/eneskabaoglu/micro-pricing.git
+git clone https://github.com/kabaoglueness/micro-pricing.git
 cd micro-pricing
 python -m http.server 3000
 ```
