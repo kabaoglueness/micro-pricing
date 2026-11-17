@@ -1,10 +1,14 @@
 # MicroPricing | Üretim Analitiği ve Fiyatlandırma Karar Motoru
 
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-black?logo=vercel)](https://micro-pricing-omega.vercel.app)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-blue?logo=github)](https://kabaoglueness.github.io/micro-pricing/)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-emerald.svg)](#)
 [![Domain: Applied Microeconomics](https://img.shields.io/badge/Domain-Applied%20Microeconomics-indigo.svg)](#)
 
+> **Canlı Uygulama (Vercel):** [https://micro-pricing-omega.vercel.app](https://micro-pricing-omega.vercel.app)  
+> **Alternatif Ayna (GitHub Pages):** [https://kabaoglueness.github.io/micro-pricing/](https://kabaoglueness.github.io/micro-pricing/)  
 > **Geliştirici:** Enes Kabaoğlu  
 > **Unvan:** YTÜ İktisat Bölümü  
 > **Uzmanlık Alanı:** Mikroiktisat, Yöneylem Araştırması, Üretim Maliyetleri ve Fiyatlandırma Matematiği
