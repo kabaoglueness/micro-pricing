@@ -1,0 +1,7 @@
+{
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/data/:path*", "destination": "/public/data/:path*" }
+  ]
+}
