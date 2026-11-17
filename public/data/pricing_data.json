@@ -1,0 +1,520 @@
+{
+  "fixed_costs": {
+    "items": {
+      "tools_depreciation": 350.0,
+      "workshop_overhead": 400.0,
+      "digital_presence": 250.0
+    },
+    "total_monthly": 1000.0
+  },
+  "products": [
+    {
+      "id": "deri_kartlik",
+      "name": "El Yapımı Vejetal Deri Kartlık",
+      "category": "Deri Aksesuar",
+      "sale_price": 550.0,
+      "leather_dm2": 3.5,
+      "leather_price_per_dm2": 28.0,
+      "magnets_count": 2,
+      "magnet_unit_price": 12.5,
+      "thread_glue_packaging": 35.0,
+      "labor_minutes": 50,
+      "hourly_wage": 150.0,
+      "shipping_cost": 55.0,
+      "monthly_target_sales": 30,
+      "analysis": {
+        "cost_breakdown": {
+          "leather": 98.0,
+          "magnets": 25.0,
+          "labor": 125.0,
+          "other": 90.0,
+          "total_variable_cost": 338.0
+        },
+        "economics": {
+          "sale_price": 550.0,
+          "unit_variable_cost": 338.0,
+          "contribution_margin": 212.0,
+          "contribution_margin_ratio_pct": 38.55,
+          "breakeven_units": 5,
+          "breakeven_revenue": 2750.0,
+          "target_sales_units": 30,
+          "monthly_projected_revenue": 16500.0,
+          "monthly_projected_profit": 5360.0,
+          "profit_margin_pct": 32.48
+        },
+        "curve_data": [
+          {
+            "units": 0,
+            "total_revenue": 0.0,
+            "total_cost": 1000.0,
+            "profit": -1000.0
+          },
+          {
+            "units": 2,
+            "total_revenue": 1100.0,
+            "total_cost": 1676.0,
+            "profit": -576.0
+          },
+          {
+            "units": 4,
+            "total_revenue": 2200.0,
+            "total_cost": 2352.0,
+            "profit": -152.0
+          },
+          {
+            "units": 6,
+            "total_revenue": 3300.0,
+            "total_cost": 3028.0,
+            "profit": 272.0
+          },
+          {
+            "units": 8,
+            "total_revenue": 4400.0,
+            "total_cost": 3704.0,
+            "profit": 696.0
+          },
+          {
+            "units": 10,
+            "total_revenue": 5500.0,
+            "total_cost": 4380.0,
+            "profit": 1120.0
+          },
+          {
+            "units": 12,
+            "total_revenue": 6600.0,
+            "total_cost": 5056.0,
+            "profit": 1544.0
+          },
+          {
+            "units": 14,
+            "total_revenue": 7700.0,
+            "total_cost": 5732.0,
+            "profit": 1968.0
+          },
+          {
+            "units": 16,
+            "total_revenue": 8800.0,
+            "total_cost": 6408.0,
+            "profit": 2392.0
+          },
+          {
+            "units": 18,
+            "total_revenue": 9900.0,
+            "total_cost": 7084.0,
+            "profit": 2816.0
+          },
+          {
+            "units": 20,
+            "total_revenue": 11000.0,
+            "total_cost": 7760.0,
+            "profit": 3240.0
+          },
+          {
+            "units": 22,
+            "total_revenue": 12100.0,
+            "total_cost": 8436.0,
+            "profit": 3664.0
+          },
+          {
+            "units": 24,
+            "total_revenue": 13200.0,
+            "total_cost": 9112.0,
+            "profit": 4088.0
+          },
+          {
+            "units": 26,
+            "total_revenue": 14300.0,
+            "total_cost": 9788.0,
+            "profit": 4512.0
+          },
+          {
+            "units": 28,
+            "total_revenue": 15400.0,
+            "total_cost": 10464.0,
+            "profit": 4936.0
+          },
+          {
+            "units": 30,
+            "total_revenue": 16500.0,
+            "total_cost": 11140.0,
+            "profit": 5360.0
+          },
+          {
+            "units": 32,
+            "total_revenue": 17600.0,
+            "total_cost": 11816.0,
+            "profit": 5784.0
+          },
+          {
+            "units": 34,
+            "total_revenue": 18700.0,
+            "total_cost": 12492.0,
+            "profit": 6208.0
+          },
+          {
+            "units": 36,
+            "total_revenue": 19800.0,
+            "total_cost": 13168.0,
+            "profit": 6632.0
+          },
+          {
+            "units": 38,
+            "total_revenue": 20900.0,
+            "total_cost": 13844.0,
+            "profit": 7056.0
+          },
+          {
+            "units": 40,
+            "total_revenue": 22000.0,
+            "total_cost": 14520.0,
+            "profit": 7480.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "okculuk_sadak",
+      "name": "Geleneksel Tirkeş / Sadak",
+      "category": "Okçuluk Ekipmanı",
+      "sale_price": 2800.0,
+      "leather_dm2": 26.0,
+      "leather_price_per_dm2": 32.0,
+      "magnets_count": 0,
+      "magnet_unit_price": 0.0,
+      "thread_glue_packaging": 120.0,
+      "labor_minutes": 240,
+      "hourly_wage": 150.0,
+      "shipping_cost": 110.0,
+      "monthly_target_sales": 6,
+      "analysis": {
+        "cost_breakdown": {
+          "leather": 832.0,
+          "magnets": 0.0,
+          "labor": 600.0,
+          "other": 230.0,
+          "total_variable_cost": 1662.0
+        },
+        "economics": {
+          "sale_price": 2800.0,
+          "unit_variable_cost": 1662.0,
+          "contribution_margin": 1138.0,
+          "contribution_margin_ratio_pct": 40.64,
+          "breakeven_units": 1,
+          "breakeven_revenue": 2800.0,
+          "target_sales_units": 6,
+          "monthly_projected_revenue": 16800.0,
+          "monthly_projected_profit": 5828.0,
+          "profit_margin_pct": 34.69
+        },
+        "curve_data": [
+          {
+            "units": 0,
+            "total_revenue": 0.0,
+            "total_cost": 1000.0,
+            "profit": -1000.0
+          },
+          {
+            "units": 1,
+            "total_revenue": 2800.0,
+            "total_cost": 2662.0,
+            "profit": 138.0
+          },
+          {
+            "units": 2,
+            "total_revenue": 5600.0,
+            "total_cost": 4324.0,
+            "profit": 1276.0
+          },
+          {
+            "units": 3,
+            "total_revenue": 8400.0,
+            "total_cost": 5986.0,
+            "profit": 2414.0
+          },
+          {
+            "units": 4,
+            "total_revenue": 11200.0,
+            "total_cost": 7648.0,
+            "profit": 3552.0
+          },
+          {
+            "units": 5,
+            "total_revenue": 14000.0,
+            "total_cost": 9310.0,
+            "profit": 4690.0
+          },
+          {
+            "units": 6,
+            "total_revenue": 16800.0,
+            "total_cost": 10972.0,
+            "profit": 5828.0
+          },
+          {
+            "units": 7,
+            "total_revenue": 19600.0,
+            "total_cost": 12634.0,
+            "profit": 6966.0
+          },
+          {
+            "units": 8,
+            "total_revenue": 22400.0,
+            "total_cost": 14296.0,
+            "profit": 8104.0
+          },
+          {
+            "units": 9,
+            "total_revenue": 25200.0,
+            "total_cost": 15958.0,
+            "profit": 9242.0
+          },
+          {
+            "units": 10,
+            "total_revenue": 28000.0,
+            "total_cost": 17620.0,
+            "profit": 10380.0
+          },
+          {
+            "units": 11,
+            "total_revenue": 30800.0,
+            "total_cost": 19282.0,
+            "profit": 11518.0
+          },
+          {
+            "units": 12,
+            "total_revenue": 33600.0,
+            "total_cost": 20944.0,
+            "profit": 12656.0
+          },
+          {
+            "units": 13,
+            "total_revenue": 36400.0,
+            "total_cost": 22606.0,
+            "profit": 13794.0
+          },
+          {
+            "units": 14,
+            "total_revenue": 39200.0,
+            "total_cost": 24268.0,
+            "profit": 14932.0
+          },
+          {
+            "units": 15,
+            "total_revenue": 42000.0,
+            "total_cost": 25930.0,
+            "profit": 16070.0
+          },
+          {
+            "units": 16,
+            "total_revenue": 44800.0,
+            "total_cost": 27592.0,
+            "profit": 17208.0
+          },
+          {
+            "units": 17,
+            "total_revenue": 47600.0,
+            "total_cost": 29254.0,
+            "profit": 18346.0
+          },
+          {
+            "units": 18,
+            "total_revenue": 50400.0,
+            "total_cost": 30916.0,
+            "profit": 19484.0
+          },
+          {
+            "units": 19,
+            "total_revenue": 53200.0,
+            "total_cost": 32578.0,
+            "profit": 20622.0
+          },
+          {
+            "units": 20,
+            "total_revenue": 56000.0,
+            "total_cost": 34240.0,
+            "profit": 21760.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "deri_zihgir",
+      "name": "El Dikişi Deri Okçu Zihgiri",
+      "category": "Okçuluk Ekipmanı",
+      "sale_price": 320.0,
+      "leather_dm2": 0.8,
+      "leather_price_per_dm2": 30.0,
+      "magnets_count": 0,
+      "magnet_unit_price": 0.0,
+      "thread_glue_packaging": 15.0,
+      "labor_minutes": 35,
+      "hourly_wage": 150.0,
+      "shipping_cost": 55.0,
+      "monthly_target_sales": 25,
+      "analysis": {
+        "cost_breakdown": {
+          "leather": 24.0,
+          "magnets": 0.0,
+          "labor": 87.5,
+          "other": 70.0,
+          "total_variable_cost": 181.5
+        },
+        "economics": {
+          "sale_price": 320.0,
+          "unit_variable_cost": 181.5,
+          "contribution_margin": 138.5,
+          "contribution_margin_ratio_pct": 43.28,
+          "breakeven_units": 8,
+          "breakeven_revenue": 2560.0,
+          "target_sales_units": 25,
+          "monthly_projected_revenue": 8000.0,
+          "monthly_projected_profit": 2462.5,
+          "profit_margin_pct": 30.78
+        },
+        "curve_data": [
+          {
+            "units": 0,
+            "total_revenue": 0.0,
+            "total_cost": 1000.0,
+            "profit": -1000.0
+          },
+          {
+            "units": 2,
+            "total_revenue": 640.0,
+            "total_cost": 1363.0,
+            "profit": -723.0
+          },
+          {
+            "units": 4,
+            "total_revenue": 1280.0,
+            "total_cost": 1726.0,
+            "profit": -446.0
+          },
+          {
+            "units": 6,
+            "total_revenue": 1920.0,
+            "total_cost": 2089.0,
+            "profit": -169.0
+          },
+          {
+            "units": 8,
+            "total_revenue": 2560.0,
+            "total_cost": 2452.0,
+            "profit": 108.0
+          },
+          {
+            "units": 10,
+            "total_revenue": 3200.0,
+            "total_cost": 2815.0,
+            "profit": 385.0
+          },
+          {
+            "units": 12,
+            "total_revenue": 3840.0,
+            "total_cost": 3178.0,
+            "profit": 662.0
+          },
+          {
+            "units": 14,
+            "total_revenue": 4480.0,
+            "total_cost": 3541.0,
+            "profit": 939.0
+          },
+          {
+            "units": 16,
+            "total_revenue": 5120.0,
+            "total_cost": 3904.0,
+            "profit": 1216.0
+          },
+          {
+            "units": 18,
+            "total_revenue": 5760.0,
+            "total_cost": 4267.0,
+            "profit": 1493.0
+          },
+          {
+            "units": 20,
+            "total_revenue": 6400.0,
+            "total_cost": 4630.0,
+            "profit": 1770.0
+          },
+          {
+            "units": 22,
+            "total_revenue": 7040.0,
+            "total_cost": 4993.0,
+            "profit": 2047.0
+          },
+          {
+            "units": 24,
+            "total_revenue": 7680.0,
+            "total_cost": 5356.0,
+            "profit": 2324.0
+          },
+          {
+            "units": 26,
+            "total_revenue": 8320.0,
+            "total_cost": 5719.0,
+            "profit": 2601.0
+          },
+          {
+            "units": 28,
+            "total_revenue": 8960.0,
+            "total_cost": 6082.0,
+            "profit": 2878.0
+          },
+          {
+            "units": 30,
+            "total_revenue": 9600.0,
+            "total_cost": 6445.0,
+            "profit": 3155.0
+          },
+          {
+            "units": 32,
+            "total_revenue": 10240.0,
+            "total_cost": 6808.0,
+            "profit": 3432.0
+          },
+          {
+            "units": 34,
+            "total_revenue": 10880.0,
+            "total_cost": 7171.0,
+            "profit": 3709.0
+          }
+        ]
+      }
+    }
+  ],
+  "portfolio_composite": {
+    "total_target_units": 61,
+    "total_projected_revenue": 41300.0,
+    "total_contribution_margin": 16650.5,
+    "weighted_average_cm": 272.96,
+    "composite_breakeven_units": 4,
+    "composite_breakeven_revenue": 2708.2,
+    "margin_of_safety_pct": 93.44,
+    "degree_of_operating_leverage": 1.06,
+    "net_profit": 15650.5,
+    "product_mix": [
+      {
+        "id": "deri_kartlik",
+        "name": "El Yapımı Vejetal Deri Kartlık",
+        "target_units": 30,
+        "mix_weight": 0.4918,
+        "breakeven_quota_units": 2
+      },
+      {
+        "id": "okculuk_sadak",
+        "name": "Geleneksel Tirkeş / Sadak",
+        "target_units": 6,
+        "mix_weight": 0.0984,
+        "breakeven_quota_units": 1
+      },
+      {
+        "id": "deri_zihgir",
+        "name": "El Dikişi Deri Okçu Zihgiri",
+        "target_units": 25,
+        "mix_weight": 0.4098,
+        "breakeven_quota_units": 2
+      }
+    ]
+  }
+}

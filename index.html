@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroPricing | Üretim Analitiği ve Fiyatlandırma Karar Motoru</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f4f6fa;
+      color: #0f172a;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    .theme-card {
+      background: #ffffff;
+      border: 1px solid #dce1ea;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .theme-card:hover {
+      border-color: #cbd5e1;
+    }
+    .theme-input {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .theme-input:focus {
+      outline: none;
+      background: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    .formula-tag {
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.01em;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- Üst Bilgi / Navbar -->
+  <header class="bg-white border-b border-[#dce1ea] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Sol: Logo ve Başlık -->
+      <div class="flex items-center gap-3">
+        <img src="SM-LOGO.jpg" alt="MicroPricing Logo" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shadow-xs">
+        <div class="flex flex-col">
+          <h1 class="font-display font-bold text-base tracking-tight text-slate-900 leading-tight">MicroPricing</h1>
+          <span class="text-xs font-semibold text-brand-600 tracking-wide mt-0.5">Üretim analitiği</span>
+        </div>
+      </div>
+
+      <!-- Sağ: Karar motoru başlığı ve mavi alt çizgi -->
+      <div class="hidden sm:flex items-center">
+        <span class="text-xs font-semibold text-slate-800 tracking-tight border-b-2 border-brand-600 pb-0.5">
+          Üretim maliyetleri ve fiyatlandırma karar motoru
+        </span>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 w-full">
+
+    <!-- 1. Satır: Ürün Seçici ve Düzenleme Barı -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#dce1ea]">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold font-display tracking-tight text-slate-900" id="active-product-title">
+          El Yapımı Vejetal Deri Kartlık
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Üretim kalemlerini ve piyasa senaryolarını test edin.</p>
+      </div>
+
+      <!-- Ürün Sekmeleri, Düzenle ve Yeni Ürün Butonları -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-200/70 rounded-xl" id="product-tabs">
+          <!-- JS ile doldurulacak -->
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button onclick="openEditModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-300 shadow-xs hover:border-slate-400 transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            <span>Düzenle</span>
+          </button>
+
+          <button onclick="openModal()" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition-colors flex items-center gap-1 shadow-xs">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Yeni ürün</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Satır: Analiz türü ve özel tarih seçim çubuğu -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#dce1ea] rounded-xl shadow-xs">
+      
+      <!-- Sol: Analiz türü segmented control -->
+      <div class="flex items-center p-1 bg-slate-100 rounded-lg">
+        <button id="tab-btn-breakeven" onclick="switchView('breakeven')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all bg-white text-brand-700 shadow-xs">
+          Birim başabaş analizi
+        </button>
+        <button id="tab-btn-stress" onclick="switchView('stress')" class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:text-brand-700">
+          Fiyat esnekliği ve stres testi
+        </button>
+      </div>
+
+      <!-- Sağ: Özel popover tarih ve dönem seçici -->
+      <div class="relative" id="period-dropdown-container">
+        <button onclick="togglePeriodDropdown()" id="period-btn" class="theme-input text-xs font-semibold rounded-lg px-3 py-2 bg-white border border-slate-300 text-slate-800 flex items-center gap-2 shadow-xs hover:border-slate-400 transition-colors">
+          <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span id="period-btn-label">Aylık projeksiyon (30 gün)</span>
+          <svg class="w-3.5 h-3.5 text-slate-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <!-- Tasarıma tam bütünleşik özel açılır menü -->
+        <div id="period-menu" class="hidden absolute right-0 mt-2 w-72 bg-white border border-[#dce1ea] rounded-xl shadow-xl p-2 z-50 space-y-1">
+          <div class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Dönem seçimi</div>
+          
+          <button onclick="selectPresetPeriod(1, 'Aylık projeksiyon (30 gün)')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-700 flex items-center justify-between transition-colors">
+            <span>Aylık projeksiyon (30 gün)</span>
+            <span class="text-[10px] formula-tag font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">1x</span>
+          </button>
+
+          <button onclick="selectPresetPeriod(3, 'Çeyreklik dönem (90 gün)')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-700 flex items-center justify-between transition-colors">
+            <span>Çeyreklik dönem (90 gün)</span>
+            <span class="text-[10px] formula-tag font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">3x</span>
+          </button>
+
+          <button onclick="selectPresetPeriod(12, 'Yıllık fizibilite (365 gün)')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-700 flex items-center justify-between transition-colors">
+            <span>Yıllık fizibilite (365 gün)</span>
+            <span class="text-[10px] formula-tag font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">12x</span>
+          </button>
+          
+          <!-- Özel tarih aralığı seçim kutusu -->
+          <div class="pt-2 border-t border-slate-100">
+            <div class="px-2 py-1 text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+              <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Özel tarih aralığı belirle</span>
+            </div>
+
+            <div class="p-2 space-y-2 bg-slate-50/80 rounded-lg border border-slate-200 mt-1">
+              <div class="grid grid-cols-2 gap-2 text-[11px]">
+                <div>
+                  <label class="block text-slate-500 mb-0.5 font-medium">Başlangıç</label>
+                  <input type="date" id="custom-start-date" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-slate-800 text-[11px] focus:outline-none focus:border-brand-600">
+                </div>
+                <div>
+                  <label class="block text-slate-500 mb-0.5 font-medium">Bitiş</label>
+                  <input type="date" id="custom-end-date" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-slate-800 text-[11px] focus:outline-none focus:border-brand-600">
+                </div>
+              </div>
+              <button onclick="applyCustomDateRange()" class="w-full py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-xs">
+                Aralığı uygula
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GÖRÜNÜM 1: BİRİM BAŞABAŞ ANALİZİ -->
+    <div id="view-breakeven" class="space-y-6">
+
+      <!-- KPI Kartları -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="theme-card p-5">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-slate-500">Birim değişken maliyet</span>
+            <span class="text-[11px] formula-tag font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">VC</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-slate-900" id="kpi-vc">₺338.00</div>
+          <div class="text-xs text-slate-500 mt-2.5">
+            1 adet ürünün doğrudan hammadde, işçilik ve kargo payı
+          </div>
+        </div>
+
+        <div class="theme-card p-5 border-l-2 border-l-brand-600">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-slate-500">Birim katkı payı</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] formula-tag font-semibold bg-brand-50 text-brand-700">
+              P - VC
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-brand-600" id="kpi-cm">₺212.00</div>
+          <div class="text-xs text-slate-500 mt-2.5">
+            Her birim satışın sabit giderleri karşılamaya bıraktığı net pay
+          </div>
+        </div>
+
+        <div class="theme-card p-5">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-slate-500" id="kpi-be-label">Başabaş satış eşiği</span>
+            <span class="text-[11px] formula-tag font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Q*</span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-slate-900" id="kpi-be">5 Adet</div>
+          <div class="text-xs text-slate-500 mt-2.5" id="kpi-be-desc">
+            Sabit atölye giderlerini sıfırlayan asgari satış miktarı
+          </div>
+        </div>
+
+        <div class="theme-card p-5">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-medium text-slate-500" id="kpi-target-label">Hedef dönem kârı</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] formula-tag font-semibold bg-brand-50 text-brand-700" id="kpi-profit-margin">
+              %32.5 marj
+            </span>
+          </div>
+          <div class="text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-slate-900" id="kpi-profit">₺5,360.00</div>
+          <div class="text-xs text-slate-500 mt-2.5" id="kpi-target-desc">
+            Hedeflenen satış miktarındaki net dönem kârı
+          </div>
+        </div>
+
+      </div>
+
+      <!-- İki Kolon: Parametreler & Grafik -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="theme-card p-6 space-y-4">
+          <div class="border-b border-[#dce1ea] pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-900">Üretim parametreleri</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Değerleri doğrudan kutulara yazarak güncelleyin.</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-slate-700">Satış fiyatı (₺)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">₺</span>
+              <input type="number" id="input-price" value="550" step="10" oninput="updateCalculations()" class="theme-input w-full pl-7 pr-3 py-2 text-xs font-semibold rounded-lg">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-700">Deri alanı (dm²)</label>
+              <input type="number" id="input-leather-dm2" value="3.5" step="0.1" oninput="updateCalculations()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+            </div>
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-700">Deri alış fiyatı (₺/dm²)</label>
+              <input type="number" id="input-leather-price" value="28" step="1" oninput="updateCalculations()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-700">İşçilik süresi (dk)</label>
+              <input type="number" id="input-labor-mins" value="50" step="5" oninput="updateCalculations()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+            </div>
+            <div class="space-y-1">
+              <label class="block text-xs font-medium text-slate-700">Saatlik emek (₺)</label>
+              <input type="number" id="input-wage" value="150" step="10" oninput="updateCalculations()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-slate-700">Kargo, mıknatıs ve kutu (₺)</label>
+            <input type="number" id="input-other" value="90" step="5" oninput="updateCalculations()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+          </div>
+
+          <div class="space-y-1 pt-3 border-t border-[#dce1ea]">
+            <label class="block text-xs font-medium text-slate-700" id="label-fc">Dönem sabit gideri (FC) (₺)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">₺</span>
+              <input type="number" id="input-fc" value="1000" step="50" oninput="updateCalculations()" class="theme-input w-full pl-7 pr-3 py-2 text-xs font-semibold rounded-lg">
+            </div>
+            <p class="text-[11px] text-slate-500">Alet amortismanı, yazılım ve atölye payı.</p>
+          </div>
+
+        </div>
+
+        <div class="theme-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h3 class="font-display font-bold text-sm text-slate-900">Başabaş noktası eğrisi</h3>
+                <p class="text-xs text-slate-500">Satış hacmine göre toplam hasılat ve toplam maliyet seyri.</p>
+              </div>
+              
+              <div class="flex flex-wrap items-center gap-3 text-xs">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-brand-600 inline-block"></span>
+                  <span class="text-slate-800 font-medium">Hasılat (TR)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
+                  <span class="text-slate-500">Maliyet (TC)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-xs bg-rose-400/40 border border-rose-400 inline-block"></span>
+                  <span class="text-rose-600 font-medium">Zarar alanı</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-xs bg-brand-500/30 border border-brand-500 inline-block"></span>
+                  <span class="text-brand-700 font-medium">Kâr alanı</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grafik Ayar ve Ölçek Çubuğu -->
+            <div class="flex flex-wrap items-center justify-between gap-3 py-2 px-3 bg-slate-50 border border-[#dce1ea] rounded-lg mb-4 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="text-slate-500 font-medium">Adım aralığı:</span>
+                <div class="inline-flex rounded-md shadow-xs bg-white p-0.5 border border-slate-300" id="step-selector">
+                  <button type="button" onclick="setChartStep('auto')" id="step-btn-auto" class="px-2 py-1 text-[11px] font-semibold rounded bg-brand-600 text-white shadow-xs">Oto</button>
+                  <button type="button" onclick="setChartStep(1)" id="step-btn-1" class="px-2 py-1 text-[11px] font-medium text-slate-700 hover:text-slate-900">1'er</button>
+                  <button type="button" onclick="setChartStep(2)" id="step-btn-2" class="px-2 py-1 text-[11px] font-medium text-slate-700 hover:text-slate-900">2'şer</button>
+                  <button type="button" onclick="setChartStep(3)" id="step-btn-3" class="px-2 py-1 text-[11px] font-medium text-slate-700 hover:text-slate-900">3'er</button>
+                  <button type="button" onclick="setChartStep(5)" id="step-btn-5" class="px-2 py-1 text-[11px] font-medium text-slate-700 hover:text-slate-900">5'er</button>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-slate-500 font-medium">Maks. adet:</span>
+                <input type="number" id="custom-max-units" min="5" max="200" placeholder="Oto" oninput="setChartMaxUnits(this.value)" class="w-16 px-2 py-1 text-[11px] font-semibold rounded bg-white border border-slate-300 text-slate-800 text-center focus:outline-none focus:border-brand-600">
+                <button type="button" onclick="resetChartMaxUnits()" class="text-[11px] text-slate-400 hover:text-brand-600 underline">Sıfırla</button>
+              </div>
+            </div>
+
+            <div class="h-80 w-full relative">
+              <canvas id="beChart"></canvas>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-[#dce1ea] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+            <div class="flex items-center gap-3">
+              <span><span class="font-semibold text-rose-600">Kırmızı:</span> Zarar bölgesi (TC > TR)</span>
+              <span><span class="font-semibold text-brand-600">Mavi:</span> Net kâr bölgesi (TR > TC)</span>
+            </div>
+            <div id="chart-be-legend" class="formula-tag font-semibold text-slate-900">Kesişim: 5 Adet (₺2,750)</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Mikroiktisat Kavram Kartları -->
+      <div class="theme-card p-6 space-y-4">
+        <div class="border-b border-[#dce1ea] pb-3">
+          <h3 class="font-display font-bold text-base text-slate-900">Mikroiktisadi maliyet prensipleri</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Üretim ve fiyatlandırma kararlarının dayandığı dört temel denklem.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs leading-relaxed">
+          
+          <div class="p-4 rounded-xl bg-slate-50 border border-[#dce1ea]">
+            <div class="font-bold text-slate-900 font-display mb-1">1. Sabit maliyet (FC)</div>
+            <p class="text-slate-600 mb-2">Üretim hacminden bağımsız giderlerdir.</p>
+            <div class="bg-white p-2.5 rounded-lg border border-[#dce1ea] formula-tag font-medium text-xs text-slate-800">
+              Aletler + Yazılım + Atölye payı
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Üretim sıfır olsa dahi dönem sonunda ödenir.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-[#dce1ea]">
+            <div class="font-bold text-slate-900 font-display mb-1">2. Değişken maliyet (VC)</div>
+            <p class="text-slate-600 mb-2">Her yeni birimde ortaya çıkan doğrudan giderdir.</p>
+            <div class="bg-white p-2.5 rounded-lg border border-[#dce1ea] formula-tag font-medium text-xs text-slate-800">
+              Deri + Aksesuar + Kargo + Emek
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Üretim yapılmadığında sıfırdır; üretimle birlikte artar.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-[#dce1ea]">
+            <div class="font-bold text-brand-700 font-display mb-1">3. Katkı payı (CM)</div>
+            <p class="text-slate-600 mb-2">Satış fiyatından birim değişken maliyet düşüldükten sonra kalan tutardır.</p>
+            <div class="bg-white p-2.5 rounded-lg border border-brand-200 formula-tag font-bold text-xs text-brand-700">
+              CM = Satış fiyatı - Değişken maliyet
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Sabit masrafları karşılar, fazlası net kârı oluşturur.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-[#dce1ea]">
+            <div class="font-bold text-slate-900 font-display mb-1">4. Başabaş noktası (Q*)</div>
+            <p class="text-slate-600 mb-2">Toplam hasılatın toplam maliyete eşitlendiği asgari satış miktarıdır.</p>
+            <div class="bg-white p-2.5 rounded-lg border border-[#dce1ea] formula-tag font-medium text-xs text-slate-800">
+              Q* = Sabit maliyet / Katkı payı
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">Bu adede kadar zarar sıfırlanır, sonrasında net kâr başlar.</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GÖRÜNÜM 2: FİYAT ESNEKLİĞİ VE STRES TESTİ -->
+    <div id="view-stress" class="space-y-6 hidden">
+
+      <!-- Bilgilendirme -->
+      <div class="theme-card p-6 bg-brand-50/40 border-brand-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-display font-bold text-base text-slate-900">Maliyet şokları ve fiyat esnekliği analizi</h3>
+          <p class="text-xs text-slate-600 mt-1 max-w-2xl">
+            Hammadde, lojistik ve genel maliyet şoklarının kârlılık üzerindeki sonuçları ve optimum fiyatlandırma kararları.
+          </p>
+        </div>
+        <div class="text-xs font-semibold text-brand-800 bg-white px-3 py-2 rounded-lg border border-brand-200 shadow-xs">
+          Talep esnekliği: <span class="formula-tag text-brand-700">ε = -0.70</span> (İnelastik talep)
+        </div>
+      </div>
+
+      <!-- 1. SIRA: MEVCUT BAZ VE BAZLA KARŞILAŞTIRILAN 4'LÜ SENARYOLAR -->
+      <div class="space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="font-display font-bold text-sm text-slate-900">Maliyet şoku senaryoları</h3>
+            <p class="text-xs text-slate-500">Mevcut durum ile piyasa şoklarının kâr karşılaştırması. Uygulamak için karta tıklayın.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="scenario-cards">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </div>
+
+      <!-- 2. SIRA: MALİYET ŞOKU STRES TESTİ (ÖZEL ŞOK GİRİŞİ) -->
+      <div class="space-y-3">
+        <div>
+          <h3 class="font-display font-bold text-sm text-slate-900">Maliyet şoku stres testi</h3>
+          <p class="text-xs text-slate-500">Deri ve kargo için yüzde zam oranlarını girerek birim maliyeti ve telafi satış fiyatını hesaplayın.</p>
+        </div>
+
+        <!-- Özel Şok Giriş ve Canlı Etki Kartı -->
+        <div class="theme-card p-6 bg-white border border-[#dce1ea] space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-slate-700">Deri zammı (%)</label>
+              <div class="relative">
+                <input type="number" id="input-shock-leather" value="25" step="5" oninput="updateCustomShockCalc()" class="theme-input w-full px-3 py-2 text-xs font-semibold rounded-lg">
+                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Deri tabaka alım fiyatındaki artış.</p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="block text-xs font-semibold text-slate-700">Lojistik ve kargo zammı (%)</label>
+              <div class="relative">
+                <input type="number" id="input-shock-shipping" value="15" step="5" oninput="updateCustomShockCalc()" class="theme-input w-full px-3 py-2 text-xs font-semibold rounded-lg">
+                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Kargo, kutu ve ambalaj gideri artışı.</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 border border-[#dce1ea] flex flex-col justify-between">
+              <div class="text-[11px] font-medium text-slate-500">Şok sonrası birim maliyet</div>
+              <div class="text-lg font-bold font-display text-slate-900" id="res-shock-vc">₺0.0</div>
+              <div class="text-[11px] text-slate-500">Yeni Q*: <span class="font-semibold text-slate-800" id="res-shock-be">0 Adet</span></div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 border border-[#dce1ea] flex flex-col justify-between">
+              <div class="text-[11px] font-medium text-slate-500">Net kâr ve değişim</div>
+              <div class="text-lg font-bold font-display text-slate-900" id="res-shock-profit">₺0</div>
+              <div class="text-[11px]" id="res-shock-diff">₺0 (%0.0)</div>
+            </div>
+
+          </div>
+
+          <!-- Telafi Fiyatı Bilgilendirmesi -->
+          <div class="p-3 rounded-lg bg-blue-50/60 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span class="text-blue-900">
+              Bu maliyet şokunda mevcut kârı korumak için gereken yeni satış fiyatı:
+            </span>
+            <span class="font-bold text-brand-700 text-sm whitespace-nowrap" id="res-shock-recovery-price">₺0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SIRA: 2 BOYUTLU KÂRLILIK DUYARLILIK MATRİSİ -->
+      <div class="theme-card p-6 space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[#dce1ea] pb-3">
+          <div>
+            <h3 class="font-display font-bold text-base text-slate-900">2 Boyutlu kârlılık duyarlılık matrisi</h3>
+            <p class="text-xs text-slate-500 mt-0.5" id="matrix-subtitle">
+              Farklı satış fiyatları ile hammadde zamlarının dönem net kârına etkisi.
+            </p>
+          </div>
+
+          <!-- Şok Türü / Kalemi Seçici Butonları -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 font-medium">Şok kalemi:</span>
+            <div class="inline-flex rounded-lg p-0.5 bg-slate-100 border border-slate-200" id="matrix-shock-target">
+              <button type="button" onclick="setMatrixShockTarget('leather')" id="shock-target-leather" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-white text-brand-700 shadow-xs border border-brand-200">Hammadde (Deri)</button>
+              <button type="button" onclick="setMatrixShockTarget('shipping')" id="shock-target-shipping" class="px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900">Lojistik (Kargo)</button>
+              <button type="button" onclick="setMatrixShockTarget('all')" id="shock-target-all" class="px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900">Tüm maliyetler</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-[#dce1ea] text-slate-500" id="matrix-thead-row">
+                <th class="py-2.5 px-3 font-semibold">Fiyat \ Şok</th>
+                <th class="py-2.5 px-3 text-right font-medium">-%10 şok</th>
+                <th class="py-2.5 px-3 text-right font-semibold text-slate-800">Baz maliyet</th>
+                <th class="py-2.5 px-3 text-right font-medium">+%15 şok</th>
+                <th class="py-2.5 px-3 text-right font-medium">+%30 şok</th>
+              </tr>
+            </thead>
+            <tbody id="sensitivity-tbody" class="divide-y divide-[#dce1ea]">
+              <!-- JS ile doldurulacak -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Renk Açıklaması -->
+        <div class="pt-3 border-t border-[#dce1ea] flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded bg-emerald-100 border border-emerald-300 inline-block"></span>
+              <span class="font-semibold text-emerald-800">Yeşil: Kârlı alan</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded bg-blue-100 border border-blue-300 inline-block"></span>
+              <span class="font-semibold text-blue-800">Mavi: Başabaş (baz) eşiği</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded bg-rose-100 border border-rose-300 inline-block"></span>
+              <span class="font-semibold text-rose-800">Kırmızı: Zarar alanı</span>
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-400">Tüm değerler seçilen hedef satış adedindeki net dönem kârıdır.</div>
+        </div>
+      </div>
+
+      <!-- 4. SIRA: FİYAT ESNEKLİĞİ HESABI & 5. SIRA: İKTİSADİ PRENSİP -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- 4: Fiyat Esnekliği Simülatörü -->
+        <div class="theme-card p-6 space-y-4">
+          <div class="border-b border-[#dce1ea] pb-3">
+            <h3 class="font-display font-bold text-sm text-slate-900">Fiyat esnekliği hesabı</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Fiyat değişiminin talep hacmi ve kâr üzerindeki etkisi.</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-slate-700">Yeni test fiyatı (₺)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-xs font-semibold text-slate-400">₺</span>
+              <input type="number" id="elasticity-test-price" value="650" step="25" oninput="updateElasticityAnalysis()" class="theme-input w-full pl-7 pr-3 py-2 text-xs font-semibold rounded-lg">
+            </div>
+            <p class="text-[11px] text-slate-400">Mevcut fiyat: <span id="current-base-price" class="font-semibold text-slate-700">₺550</span></p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-xs font-medium text-slate-700">Talep esnekliği katsayısı (ε)</label>
+            <input type="number" id="elasticity-coeff" value="-0.7" step="0.1" max="0" oninput="updateElasticityAnalysis()" class="theme-input w-full px-3 py-2 text-xs font-medium rounded-lg">
+            <p class="text-[11px] text-slate-500">|ε| < 1 olduğunda fiyat artışı toplam hasılatı ve kârı artırır.</p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-[#dce1ea] space-y-2.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Fiyat değişimi:</span>
+              <span id="el-price-delta" class="font-semibold text-brand-700">+%18.2</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Beklenen satış adedi:</span>
+              <span id="el-qty-result" class="font-semibold text-slate-900">26.2 Adet (-%12.7)</span>
+            </div>
+            <div class="flex justify-between pt-2 border-t border-[#dce1ea]">
+              <span class="font-bold text-slate-800">Yeni net kâr:</span>
+              <span id="el-new-profit" class="font-bold font-display text-base text-brand-700">₺7,174.40</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-tight pt-1" id="el-verdict">
+              Fiyat artışı sonucu satış adedi gerilemesine rağmen, birim katkı payı genişlediği için net kâr arttı.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5: İktisadi Prensip Kartı -->
+        <div class="lg:col-span-2 theme-card p-6 flex flex-col justify-between space-y-4 border-l-4 border-l-brand-600">
+          <div>
+            <h4 class="font-display font-bold text-base text-slate-900 mb-2">İktisadi çıkarım: Talep esnekliği ve fiyatlandırma gücü</h4>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              İkamesi yüksek seri üretim mallarında fiyat artışı talep hacmini sert düşürür (|ε| > 1). 
+              El işçiliği ve niş atölye ürünlerinde ise alıcı fiyat artışına daha az duyarlıdır (|ε| < 1). 
+              Bu piyasa yapısında birim fiyatı artırmak, satış adedinde sınırlı gerilemeye yol açsa da toplam dönem kârını yukarı taşır.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-semibold text-slate-900 block mb-1">Fiyat esnekliği formülü:</span>
+                <code class="text-brand-700 formula-tag">ε = (%ΔQ) / (%ΔP)</code>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span class="font-semibold text-slate-900 block mb-1">Marjinal kâr şartı:</span>
+                <code class="text-brand-700 formula-tag">P* = VC / (1 + 1/ε)</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#dce1ea] text-[11px] text-slate-500">
+            Zanaat işletmelerinde marka değeri ve el işçiliği talebi inelastik kılar; enflasyonist dönemlerde maliyet artışlarını fiyatlara yansıtma gücü sağlar.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Ürün Düzenleme Modali -->
+  <div id="edit-product-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-[#dce1ea] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-[#dce1ea]">
+        <h3 class="font-display font-bold text-slate-900 text-sm">Ürün bilgilerini düzenle</h3>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-700 text-base">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-700 font-medium mb-1">Ürün adı</label>
+          <input type="text" id="edit-name" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900 font-semibold">
+        </div>
+        <div>
+          <label class="block text-slate-700 font-medium mb-1">Hedef dönem satış adedi</label>
+          <input type="number" id="edit-target-sales" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900 font-semibold">
+          <p class="text-[11px] text-slate-500 mt-1">Dönem kârını ve başabaş projeksiyonunu hesaplamak için kullanılır.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-[#dce1ea]">
+        <button onclick="deleteCurrentProduct()" class="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+          Ürünü sil
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button onclick="closeEditModal()" class="px-3.5 py-2 text-xs text-slate-500 hover:text-slate-800 font-medium">Vazgeç</button>
+          <button onclick="saveProductEdits()" class="px-4 py-2 text-xs bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg transition-colors">Kaydet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yeni Ürün Ekle Modali -->
+  <div id="product-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-[#dce1ea] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between pb-3 border-b border-[#dce1ea]">
+        <h3 class="font-display font-bold text-slate-900 text-sm">Yeni ürün ekle</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-base">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-700 font-medium mb-1">Ürün adı</label>
+          <input type="text" id="new-name" placeholder="Örn: Deri Pasaport Kılıfı" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+        </div>
+        <div>
+          <label class="block text-slate-700 font-medium mb-1">Hedef satış fiyatı (₺)</label>
+          <input type="number" id="new-price" placeholder="750" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-medium mb-1">Deri alanı (dm²)</label>
+            <input type="number" step="0.1" id="new-dm2" placeholder="5.0" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-700 font-medium mb-1">Deri fiyatı (₺/dm²)</label>
+            <input type="number" id="new-leather-price" placeholder="28" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-medium mb-1">İşçilik süresi (dk)</label>
+            <input type="number" id="new-labor" placeholder="60" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-700 font-medium mb-1">Kargo ve kutu (₺)</label>
+            <input type="number" id="new-shipping" placeholder="70" class="theme-input w-full rounded-lg px-3 py-2 text-slate-900">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#dce1ea]">
+        <button onclick="closeModal()" class="px-3.5 py-2 text-xs text-slate-500 hover:text-slate-800 font-medium">Vazgeç</button>
+        <button onclick="saveNewProduct()" class="px-4 py-2 text-xs bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg transition-colors">Kaydet ve simüle et</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-[#dce1ea] py-6 text-xs mt-12 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <div class="font-semibold text-slate-900">Enes Kabaoğlu</div>
+        <div class="text-xs text-slate-500">YTÜ İktisat, MicroPricing</div>
+      </div>
+      <div class="text-[11px] text-slate-400">
+        Akademik portföy projesi
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let products = [
+      {
+        id: "deri_kartlik",
+        name: "El Yapımı Vejetal Deri Kartlık",
+        price: 550,
+        leather_dm2: 3.5,
+        leather_price: 28,
+        labor_mins: 50,
+        wage: 150,
+        other_costs: 90,
+        base_fc: 1000,
+        target_sales: 30
+      },
+      {
+        id: "okculuk_sadak",
+        name: "Geleneksel Tirkeş / Sadak",
+        price: 2800,
+        leather_dm2: 26,
+        leather_price: 32,
+        labor_mins: 240,
+        wage: 150,
+        other_costs: 230,
+        base_fc: 1000,
+        target_sales: 6
+      },
+      {
+        id: "deri_zihgir",
+        name: "El Dikişi Deri Okçu Zihgiri",
+        price: 320,
+        leather_dm2: 0.8,
+        leather_price: 30,
+        labor_mins: 35,
+        wage: 150,
+        other_costs: 70,
+        base_fc: 1000,
+        target_sales: 25
+      }
+    ];
+
+    let currentProductIndex = 0;
+    let beChart = null;
+    let currentView = 'breakeven';
+    let currentPeriodMultiplier = 1; // 1 = Ay, 3 = Çeyrek, 12 = Yıl
+
+    function switchView(viewName) {
+      currentView = viewName;
+      const btnBe = document.getElementById('tab-btn-breakeven');
+      const btnSt = document.getElementById('tab-btn-stress');
+      const viewBe = document.getElementById('view-breakeven');
+      const viewSt = document.getElementById('view-stress');
+
+      if (viewName === 'breakeven') {
+        btnBe.className = "px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all bg-white text-brand-700 shadow-xs";
+        btnSt.className = "px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:text-brand-700";
+        viewBe.classList.remove('hidden');
+        viewSt.classList.add('hidden');
+      } else {
+        btnSt.className = "px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all bg-white text-brand-700 shadow-xs";
+        btnBe.className = "px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:text-brand-700";
+        viewSt.classList.remove('hidden');
+        viewBe.classList.add('hidden');
+        updateStressModule();
+      }
+    }
+
+    // --- ÖZEL POPOVER DÖNEM SEÇİCİ ---
+    function togglePeriodDropdown() {
+      const menu = document.getElementById('period-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function selectPresetPeriod(multiplier, label) {
+      currentPeriodMultiplier = multiplier;
+      document.getElementById('period-btn-label').textContent = label;
+      document.getElementById('period-menu').classList.add('hidden');
+      applyPeriodMultiplier();
+    }
+
+    function applyCustomDateRange() {
+      const startVal = document.getElementById('custom-start-date').value;
+      const endVal = document.getElementById('custom-end-date').value;
+
+      if (!startVal || !endVal) {
+        alert("Lütfen hem başlangıç hem bitiş tarihini seçin.");
+        return;
+      }
+
+      const dStart = new Date(startVal);
+      const dEnd = new Date(endVal);
+      const diffMs = dEnd - dStart;
+
+      if (diffMs <= 0) {
+        alert("Bitiş tarihi başlangıç tarihinden sonra olmalıdır.");
+        return;
+      }
+
+      const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+      currentPeriodMultiplier = diffDays / 30.0;
+
+      document.getElementById('period-btn-label').textContent = `Özel aralık (${diffDays} gün)`;
+      document.getElementById('period-menu').classList.add('hidden');
+      applyPeriodMultiplier();
+    }
+
+    function applyPeriodMultiplier() {
+      const p = products[currentProductIndex];
+      const scaledFC = Math.round((p.base_fc || 1000) * currentPeriodMultiplier);
+      document.getElementById('input-fc').value = scaledFC;
+
+      const days = Math.round(currentPeriodMultiplier * 30);
+      document.getElementById('label-fc').textContent = `${days} günlük sabit gider (FC) (₺)`;
+      document.getElementById('kpi-target-label').textContent = `Hedef ${days} günlük kâr`;
+
+      updateCalculations();
+      if (currentView === 'stress') {
+        updateStressModule();
+      }
+    }
+
+    // Menü dışına tıklandığında menüyü kapat
+    window.addEventListener('click', (e) => {
+      const container = document.getElementById('period-dropdown-container');
+      if (container && !container.contains(e.target)) {
+        const menu = document.getElementById('period-menu');
+        if (menu) menu.classList.add('hidden');
+      }
+    });
+
+    function renderTabs() {
+      const container = document.getElementById('product-tabs');
+      container.innerHTML = '';
+
+      products.forEach((p, idx) => {
+        const btn = document.createElement('button');
+        const isActive = idx === currentProductIndex;
+        btn.className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          isActive 
+            ? 'bg-white text-brand-700 shadow-xs border border-brand-200' 
+            : 'text-slate-600 hover:text-slate-900'
+        }`;
+        btn.textContent = p.name;
+        btn.onclick = () => selectProduct(idx);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectProduct(index) {
+      currentProductIndex = index;
+      const p = products[index];
+
+      document.getElementById('active-product-title').textContent = p.name;
+      
+      document.getElementById('input-price').value = p.price;
+      document.getElementById('input-leather-dm2').value = p.leather_dm2;
+      document.getElementById('input-leather-price').value = p.leather_price;
+      document.getElementById('input-labor-mins').value = p.labor_mins;
+      document.getElementById('input-wage').value = p.wage;
+      document.getElementById('input-other').value = p.other_costs || 90;
+      
+      const scaledFC = Math.round((p.base_fc || 1000) * currentPeriodMultiplier);
+      document.getElementById('input-fc').value = scaledFC;
+
+      document.getElementById('current-base-price').textContent = '₺' + p.price;
+      document.getElementById('elasticity-test-price').value = Math.round(p.price * 1.18);
+
+      renderTabs();
+      updateCalculations();
+      if (currentView === 'stress') {
+        updateStressModule();
+      }
+    }
+
+    function updateCalculations() {
+      const p = products[currentProductIndex];
+
+      const price = Math.max(0, parseFloat(document.getElementById('input-price').value) || 0);
+      const dm2 = Math.max(0, parseFloat(document.getElementById('input-leather-dm2').value) || 0);
+      const lPrice = Math.max(0, parseFloat(document.getElementById('input-leather-price').value) || 0);
+      const mins = Math.max(0, parseFloat(document.getElementById('input-labor-mins').value) || 0);
+      const wage = Math.max(0, parseFloat(document.getElementById('input-wage').value) || 0);
+      const otherCosts = Math.max(0, parseFloat(document.getElementById('input-other').value) || 0);
+      const fc = Math.max(0, parseFloat(document.getElementById('input-fc').value) || 0);
+
+      const costLeather = dm2 * lPrice;
+      const costLabor = (mins / 60) * wage;
+      const vc = costLeather + costLabor + otherCosts;
+
+      const cm = price - vc;
+      let breakevenUnits = cm > 0 ? Math.ceil(fc / cm) : 999;
+
+      const targetQ = Math.round((p.target_sales || 20) * currentPeriodMultiplier);
+      const projectedRevenue = price * targetQ;
+      const projectedProfit = (cm * targetQ) - fc;
+      const profitMargin = projectedRevenue > 0 ? (projectedProfit / projectedRevenue) * 100 : 0;
+
+      document.getElementById('kpi-vc').textContent = '₺' + vc.toFixed(2);
+      document.getElementById('kpi-cm').textContent = '₺' + cm.toFixed(2);
+      document.getElementById('kpi-cm').className = cm > 0 
+        ? 'text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-brand-600' 
+        : 'text-2xl sm:text-3xl font-bold font-display tabular-nums tracking-tight text-rose-600';
+
+      if (cm > 0) {
+        document.getElementById('kpi-be').textContent = breakevenUnits + ' Adet';
+        document.getElementById('chart-be-legend').textContent = 'Kesişim: ' + breakevenUnits + ' Adet (₺' + (breakevenUnits * price).toLocaleString() + ')';
+      } else {
+        document.getElementById('kpi-be').textContent = 'Zarar eşiği';
+        document.getElementById('chart-be-legend').textContent = 'Satış fiyatı maliyeti karşılamıyor (P < VC)';
+      }
+
+      document.getElementById('kpi-profit').textContent = '₺' + projectedProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('kpi-profit-margin').textContent = '%' + profitMargin.toFixed(1) + ' marj';
+      document.getElementById('kpi-target-desc').textContent = targetQ + ' adet satış hedefindeki net dönem kârı';
+
+      drawChart(price, vc, fc, breakevenUnits, targetQ);
+    }
+
+    // Grafik Adım ve Aralık Durumu
+    let currentChartStep = 'auto'; // 'auto' veya 1, 2, 3, 5
+    let customChartMaxUnits = null; // null (otomatik) veya sayı
+
+    function setChartStep(step) {
+      currentChartStep = step;
+      ['auto', 1, 2, 3, 5].forEach(s => {
+        const btn = document.getElementById(`step-btn-${s}`);
+        if (!btn) return;
+        if (s === step) {
+          btn.className = 'px-2 py-1 text-[11px] font-semibold rounded bg-brand-600 text-white shadow-xs';
+        } else {
+          btn.className = 'px-2 py-1 text-[11px] font-medium text-slate-700 hover:text-slate-900';
+        }
+      });
+      updateCalculations();
+    }
+
+    function setChartMaxUnits(val) {
+      const num = parseInt(val, 10);
+      if (num && num > 0) {
+        customChartMaxUnits = Math.min(300, Math.max(5, num));
+      } else {
+        customChartMaxUnits = null;
+      }
+      updateCalculations();
+    }
+
+    function resetChartMaxUnits() {
+      customChartMaxUnits = null;
+      const input = document.getElementById('custom-max-units');
+      if (input) input.value = '';
+      updateCalculations();
+    }
+
+    // Özel Alan Gölgelendirme: Zarar kırmızı, Kâr mavi, alt kısım boş/şeffaf
+    const breakEvenShadingPlugin = {
+      id: 'breakEvenShadingPlugin',
+      beforeDatasetsDraw(chart) {
+        const { ctx } = chart;
+        const metaTR = chart.getDatasetMeta(0);
+        const metaTC = chart.getDatasetMeta(1);
+
+        if (!metaTR.data || !metaTC.data || metaTR.data.length < 2) return;
+
+        ctx.save();
+        for (let i = 0; i < metaTR.data.length - 1; i++) {
+          const pTR1 = metaTR.data[i];
+          const pTR2 = metaTR.data[i + 1];
+          const pTC1 = metaTC.data[i];
+          const pTC2 = metaTC.data[i + 1];
+
+          const valTR1 = chart.data.datasets[0].data[i];
+          const valTR2 = chart.data.datasets[0].data[i + 1];
+          const valTC1 = chart.data.datasets[1].data[i];
+          const valTC2 = chart.data.datasets[1].data[i + 1];
+
+          const diff1 = valTR1 - valTC1;
+          const diff2 = valTR2 - valTC2;
+
+          // Her iki nokta da zarar alanında (TR <= TC)
+          if (diff1 <= 0 && diff2 <= 0) {
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.14)';
+            ctx.beginPath();
+            ctx.moveTo(pTC1.x, pTC1.y);
+            ctx.lineTo(pTC2.x, pTC2.y);
+            ctx.lineTo(pTR2.x, pTR2.y);
+            ctx.lineTo(pTR1.x, pTR1.y);
+            ctx.closePath();
+            ctx.fill();
+          }
+          // Her iki nokta da kâr alanında (TR >= TC)
+          else if (diff1 >= 0 && diff2 >= 0) {
+            ctx.fillStyle = 'rgba(37, 99, 235, 0.14)';
+            ctx.beginPath();
+            ctx.moveTo(pTR1.x, pTR1.y);
+            ctx.lineTo(pTR2.x, pTR2.y);
+            ctx.lineTo(pTC2.x, pTC2.y);
+            ctx.lineTo(pTC1.x, pTC1.y);
+            ctx.closePath();
+            ctx.fill();
+          }
+          // Kesişim (Başabaş) geçiş segmenti
+          else {
+            const fraction = (valTC1 - valTR1) / ((valTR2 - valTR1) - (valTC2 - valTC1));
+            const interX = pTR1.x + fraction * (pTR2.x - pTR1.x);
+            const interY = pTR1.y + fraction * (pTR2.y - pTR1.y);
+
+            if (diff1 < 0) {
+              // Kesişim öncesi Zarar
+              ctx.fillStyle = 'rgba(239, 68, 68, 0.14)';
+              ctx.beginPath();
+              ctx.moveTo(pTC1.x, pTC1.y);
+              ctx.lineTo(interX, interY);
+              ctx.lineTo(pTR1.x, pTR1.y);
+              ctx.closePath();
+              ctx.fill();
+
+              // Kesişim sonrası Kâr
+              ctx.fillStyle = 'rgba(37, 99, 235, 0.14)';
+              ctx.beginPath();
+              ctx.moveTo(interX, interY);
+              ctx.lineTo(pTR2.x, pTR2.y);
+              ctx.lineTo(pTC2.x, pTC2.y);
+              ctx.closePath();
+              ctx.fill();
+            } else {
+              // Kesişim öncesi Kâr
+              ctx.fillStyle = 'rgba(37, 99, 235, 0.14)';
+              ctx.beginPath();
+              ctx.moveTo(pTR1.x, pTR1.y);
+              ctx.lineTo(interX, interY);
+              ctx.lineTo(pTC1.x, pTC1.y);
+              ctx.closePath();
+              ctx.fill();
+
+              // Kesişim sonrası Zarar
+              ctx.fillStyle = 'rgba(239, 68, 68, 0.14)';
+              ctx.beginPath();
+              ctx.moveTo(interX, interY);
+              ctx.lineTo(pTC2.x, pTC2.y);
+              ctx.lineTo(pTR2.x, pTR2.y);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+        }
+        ctx.restore();
+      }
+    };
+
+    function drawChart(price, vc, fc, beUnits, targetQ) {
+      const ctx = document.getElementById('beChart').getContext('2d');
+      const defaultMax = Math.max((beUnits > 0 && beUnits < 200 ? beUnits : 10) * 2, targetQ + 10, 20);
+      const maxUnits = customChartMaxUnits !== null ? customChartMaxUnits : defaultMax;
+      
+      let step;
+      if (currentChartStep === 'auto') {
+        step = Math.max(1, Math.floor(maxUnits / 12));
+      } else {
+        step = currentChartStep;
+      }
+
+      const labels = [];
+      const trData = [];
+      const tcData = [];
+
+      for (let q = 0; q <= maxUnits; q += step) {
+        labels.push(q);
+        trData.push(price * q);
+        tcData.push(fc + (vc * q));
+      }
+
+      if (beChart) {
+        beChart.destroy();
+      }
+
+      beChart = new Chart(ctx, {
+        type: 'line',
+        plugins: [breakEvenShadingPlugin],
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Toplam Hasılat (TR)',
+              data: trData,
+              borderColor: '#2563eb',
+              backgroundColor: 'transparent',
+              borderWidth: 2.2,
+              tension: 0.15,
+              fill: false,
+              pointRadius: labels.length > 25 ? 1 : 2.5,
+              pointHoverRadius: 5
+            },
+            {
+              label: 'Toplam Maliyet (TC)',
+              data: tcData,
+              borderColor: '#94a3b8',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              tension: 0.1,
+              fill: false,
+              pointRadius: labels.length > 25 ? 1 : 2,
+              pointHoverRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#ffffff',
+              bodyColor: '#cbd5e1',
+              borderWidth: 0,
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                title: function(contexts) {
+                  return 'Satış: ' + contexts[0].label + ' Adet';
+                },
+                label: function(context) {
+                  return context.dataset.label + ': ₺' + context.parsed.y.toLocaleString('tr-TR');
+                },
+                afterBody: function(contexts) {
+                  const qVal = contexts[0].parsed.x !== undefined ? contexts[0].label : (contexts[0].dataIndex * step);
+                  const qNum = parseInt(qVal, 10);
+                  const tr = price * qNum;
+                  const tc = fc + (vc * qNum);
+                  const diff = tr - tc;
+                  return (diff >= 0 ? 'Net Kâr: +₺' : 'Net Zarar: -₺') + Math.abs(diff).toLocaleString('tr-TR');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Adet',
+                align: 'end',
+                color: '#64748b',
+                font: { size: 11, weight: '600' }
+              },
+              grid: { color: '#f1f5f9', drawBorder: false },
+              ticks: { color: '#64748b', font: { size: 10 } }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '₺',
+                align: 'end',
+                color: '#64748b',
+                font: { size: 11, weight: '600' }
+              },
+              grid: { color: '#f1f5f9', drawBorder: false },
+              ticks: {
+                color: '#64748b',
+                font: { size: 10 },
+                callback: function(val) { return val.toLocaleString('tr-TR'); }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // --- FİYAT ESNEKLİĞİ VE STRES TESTİ ---
+    let matrixShockTarget = 'leather'; // 'leather', 'shipping', 'all'
+
+    function setMatrixShockTarget(target) {
+      matrixShockTarget = target;
+      ['leather', 'shipping', 'all'].forEach(t => {
+        const btn = document.getElementById(`shock-target-${t}`);
+        if (!btn) return;
+        if (t === target) {
+          btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-white text-brand-700 shadow-xs border border-brand-200';
+        } else {
+          btn.className = 'px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900';
+        }
+      });
+
+      const subtitleEl = document.getElementById('matrix-subtitle');
+      if (subtitleEl) {
+        if (target === 'leather') {
+          subtitleEl.textContent = 'Farklı satış fiyatları ile hammadde zamlarının dönem net kârına etkisi.';
+        } else if (target === 'shipping') {
+          subtitleEl.textContent = 'Farklı satış fiyatları ile lojistik zamlarının dönem net kârına etkisi.';
+        } else {
+          subtitleEl.textContent = 'Farklı satış fiyatları ile tüm değişken maliyet zamlarının dönem net kârına etkisi.';
+        }
+      }
+
+      updateStressModule();
+    }
+
+    function applyPresetScenario(leatherPct, shippingPct) {
+      const inL = document.getElementById('input-shock-leather');
+      const inS = document.getElementById('input-shock-shipping');
+      if (inL) inL.value = leatherPct;
+      if (inS) inS.value = shippingPct;
+      updateCustomShockCalc();
+    }
+
+    function updateCustomShockCalc() {
+      const p = products[currentProductIndex];
+      const basePrice = parseFloat(document.getElementById('input-price').value) || p.price;
+      const dm2 = parseFloat(document.getElementById('input-leather-dm2').value) || p.leather_dm2;
+      const lPrice = parseFloat(document.getElementById('input-leather-price').value) || p.leather_price;
+      const mins = parseFloat(document.getElementById('input-labor-mins').value) || p.labor_mins;
+      const wage = parseFloat(document.getElementById('input-wage').value) || p.wage;
+      const otherCosts = parseFloat(document.getElementById('input-other').value) || (p.other_costs || 90);
+      const fc = parseFloat(document.getElementById('input-fc').value) || Math.round((p.base_fc || 1000) * currentPeriodMultiplier);
+      const targetQ = Math.round((p.target_sales || 20) * currentPeriodMultiplier);
+
+      const sLeatherPct = parseFloat(document.getElementById('input-shock-leather').value) || 0;
+      const sShippingPct = parseFloat(document.getElementById('input-shock-shipping').value) || 0;
+
+      const baseLeatherCost = dm2 * lPrice;
+      const baseLaborCost = (mins / 60) * wage;
+      const baseVC = baseLeatherCost + baseLaborCost + otherCosts;
+      const baseProfit = ((basePrice - baseVC) * targetQ) - fc;
+
+      const shockedLeatherCost = baseLeatherCost * (1 + sLeatherPct / 100);
+      const shockedOtherCost = otherCosts * (1 + sShippingPct / 100);
+      const shockedVC = shockedLeatherCost + baseLaborCost + shockedOtherCost;
+      const shockedCM = basePrice - shockedVC;
+      const shockedBE = shockedCM > 0 ? Math.ceil(fc / shockedCM) : 999;
+      const shockedProfit = (shockedCM * targetQ) - fc;
+      const profitDiff = shockedProfit - baseProfit;
+      const profitDiffPct = baseProfit !== 0 ? ((profitDiff / Math.abs(baseProfit)) * 100).toFixed(1) : 0;
+      
+      const requiredPrice = targetQ > 0 ? (shockedVC + ((baseProfit + fc) / targetQ)) : shockedVC;
+
+      const vcEl = document.getElementById('res-shock-vc');
+      const beEl = document.getElementById('res-shock-be');
+      const prEl = document.getElementById('res-shock-profit');
+      const diffEl = document.getElementById('res-shock-diff');
+      const recEl = document.getElementById('res-shock-recovery-price');
+
+      if (vcEl) vcEl.textContent = '₺' + shockedVC.toFixed(1);
+      if (beEl) beEl.textContent = (shockedCM > 0 ? shockedBE + ' Adet' : 'Zarar Eşiği');
+      if (prEl) prEl.textContent = '₺' + Math.round(shockedProfit).toLocaleString('tr-TR');
+      
+      if (diffEl) {
+        if (profitDiff >= 0) {
+          diffEl.textContent = `+₺${Math.round(profitDiff).toLocaleString('tr-TR')} (+%${Math.abs(profitDiffPct)})`;
+          diffEl.className = 'text-[11px] font-bold text-brand-700';
+        } else {
+          diffEl.textContent = `-₺${Math.round(Math.abs(profitDiff)).toLocaleString('tr-TR')} (-%${Math.abs(profitDiffPct)})`;
+          diffEl.className = 'text-[11px] font-bold text-rose-600';
+        }
+      }
+
+      if (recEl) recEl.textContent = '₺' + Math.ceil(requiredPrice).toLocaleString('tr-TR');
+    }
+
+    function updateStressModule() {
+      const p = products[currentProductIndex];
+      const basePrice = parseFloat(document.getElementById('input-price').value) || p.price;
+      const dm2 = parseFloat(document.getElementById('input-leather-dm2').value) || p.leather_dm2;
+      const lPrice = parseFloat(document.getElementById('input-leather-price').value) || p.leather_price;
+      const mins = parseFloat(document.getElementById('input-labor-mins').value) || p.labor_mins;
+      const wage = parseFloat(document.getElementById('input-wage').value) || p.wage;
+      const otherCosts = parseFloat(document.getElementById('input-other').value) || (p.other_costs || 90);
+      const fc = parseFloat(document.getElementById('input-fc').value) || Math.round((p.base_fc || 1000) * currentPeriodMultiplier);
+      const targetQ = Math.round((p.target_sales || 20) * currentPeriodMultiplier);
+
+      const baseLeatherCost = dm2 * lPrice;
+      const baseLaborCost = (mins / 60) * wage;
+      const baseVC = baseLeatherCost + baseLaborCost + otherCosts;
+      const baseProfit = ((basePrice - baseVC) * targetQ) - fc;
+
+      const scenarios = [
+        {
+          name: "1. Mevcut baz durum",
+          leatherPct: 0,
+          shippingPct: 0,
+          badge: "Temel durum",
+          badgeClass: "bg-slate-100 text-slate-700"
+        },
+        {
+          name: "2. Deri fiyat şoku (+%25)",
+          leatherPct: 25,
+          shippingPct: 0,
+          badge: "+%25 Deri zammı",
+          badgeClass: "bg-amber-50 text-amber-700 border border-amber-200"
+        },
+        {
+          name: "3. Lojistik şoku (+%40)",
+          leatherPct: 0,
+          shippingPct: 40,
+          badge: "+%40 Kargo zammı",
+          badgeClass: "bg-amber-50 text-amber-700 border border-amber-200"
+        },
+        {
+          name: "4. Çift maliyet krizi",
+          leatherPct: 30,
+          shippingPct: 40,
+          badge: "+%30 Deri ve +%40 kargo",
+          badgeClass: "bg-rose-50 text-rose-700 border border-rose-200"
+        }
+      ];
+
+      const cardsContainer = document.getElementById('scenario-cards');
+      if (cardsContainer) {
+        cardsContainer.innerHTML = '';
+        scenarios.forEach(sc => {
+          const scLeatherCost = baseLeatherCost * (1 + sc.leatherPct / 100);
+          const scOtherCost = otherCosts * (1 + sc.shippingPct / 100);
+          const scVC = scLeatherCost + baseLaborCost + scOtherCost;
+          const scCM = basePrice - scVC;
+          const scBE = scCM > 0 ? Math.ceil(fc / scCM) : 999;
+          const scProfit = (scCM * targetQ) - fc;
+          const profitDeltaPct = baseProfit !== 0 ? (((scProfit - baseProfit) / Math.abs(baseProfit)) * 100).toFixed(1) : 0;
+
+          const card = document.createElement('div');
+          card.className = "theme-card p-5 space-y-2 cursor-pointer hover:border-brand-500 hover:shadow-md transition-all";
+          card.onclick = () => applyPresetScenario(sc.leatherPct, sc.shippingPct);
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-900">${sc.name}</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${sc.badgeClass}">${sc.badge}</span>
+            </div>
+            <div class="text-xl font-bold font-display text-slate-900 tabular-nums">₺${scProfit.toLocaleString('tr-TR', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            <div class="text-[11px] text-slate-500 flex justify-between pt-2 border-t border-slate-100">
+              <span>Birim maliyet: ₺${scVC.toFixed(1)}</span>
+              <span class="font-semibold text-slate-700">Q*: ${scBE} Adet</span>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[11px] ${scProfit >= baseProfit ? 'text-brand-700' : 'text-rose-600'} font-semibold">
+                ${scProfit >= baseProfit ? 'Baz durum' : 'Kâr kaybı: ' + profitDeltaPct + '%'}
+              </span>
+              <span class="text-[10px] font-medium text-brand-600 hover:underline">Uygula &rarr;</span>
+            </div>
+          `;
+          cardsContainer.appendChild(card);
+        });
+      }
+
+      updateCustomShockCalc();
+      updateElasticityAnalysis();
+      renderSensitivityMatrix(basePrice, baseLeatherCost, baseLaborCost, otherCosts, baseVC, fc, targetQ);
+    }
+
+    function updateElasticityAnalysis() {
+      const p = products[currentProductIndex];
+      const basePrice = parseFloat(document.getElementById('input-price').value) || p.price;
+      const newPrice = parseFloat(document.getElementById('elasticity-test-price').value) || basePrice;
+      const elasticity = parseFloat(document.getElementById('elasticity-coeff').value) || -0.7;
+      
+      const dm2 = parseFloat(document.getElementById('input-leather-dm2').value) || p.leather_dm2;
+      const lPrice = parseFloat(document.getElementById('input-leather-price').value) || p.leather_price;
+      const mins = parseFloat(document.getElementById('input-labor-mins').value) || p.labor_mins;
+      const wage = parseFloat(document.getElementById('input-wage').value) || p.wage;
+      const otherCosts = parseFloat(document.getElementById('input-other').value) || (p.other_costs || 90);
+      const fc = parseFloat(document.getElementById('input-fc').value) || Math.round((p.base_fc || 1000) * currentPeriodMultiplier);
+      const baseQ = Math.round((p.target_sales || 20) * currentPeriodMultiplier);
+
+      const vc = (dm2 * lPrice) + ((mins / 60) * wage) + otherCosts;
+      const baseProfit = ((basePrice - vc) * baseQ) - fc;
+
+      const priceDeltaPct = ((newPrice - basePrice) / basePrice) * 100;
+      const qtyDeltaPct = elasticity * priceDeltaPct;
+      const newQ = Math.max(0, baseQ * (1 + (qtyDeltaPct / 100)));
+
+      const newProfit = ((newPrice - vc) * newQ) - fc;
+      const profitDelta = newProfit - baseProfit;
+
+      document.getElementById('el-price-delta').textContent = (priceDeltaPct >= 0 ? '+' : '') + priceDeltaPct.toFixed(1) + '%';
+      document.getElementById('el-qty-result').textContent = newQ.toFixed(1) + ' Adet (' + (qtyDeltaPct >= 0 ? '+' : '') + qtyDeltaPct.toFixed(1) + '%)';
+      document.getElementById('el-new-profit').textContent = '₺' + newProfit.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      const verdictEl = document.getElementById('el-verdict');
+      if (profitDelta >= 0) {
+        verdictEl.innerHTML = `Fiyat artışı sonucu satış adedi %${Math.abs(qtyDeltaPct).toFixed(1)} gerilemesine rağmen, birim katkı payı genişlediği için net kâr <span class="font-bold text-brand-700">+₺${Math.round(profitDelta).toLocaleString('tr-TR')}</span> arttı.`;
+      } else {
+        verdictEl.innerHTML = `Fiyat artışının talepte yol açtığı düşüş, birim marj artışını aştı ve net kâr <span class="font-bold text-rose-600">-₺${Math.round(Math.abs(profitDelta)).toLocaleString('tr-TR')}</span> azaldı.`;
+      }
+    }
+
+    function renderSensitivityMatrix(basePrice, baseLeatherCost, baseLaborCost, baseOtherCost, baseVC, fc, targetQ) {
+      const theadRow = document.getElementById('matrix-thead-row');
+      const tbody = document.getElementById('sensitivity-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      let colDefinitions = [];
+      if (matrixShockTarget === 'leather') {
+        colDefinitions = [
+          { label: '-%10 Deri', mult: 0.90 },
+          { label: 'Baz maliyet', mult: 1.0, isBase: true },
+          { label: '+%15 Deri', mult: 1.15 },
+          { label: '+%30 Deri', mult: 1.30 }
+        ];
+      } else if (matrixShockTarget === 'shipping') {
+        colDefinitions = [
+          { label: '-%10 Kargo', mult: 0.90 },
+          { label: 'Baz maliyet', mult: 1.0, isBase: true },
+          { label: '+%25 Kargo', mult: 1.25 },
+          { label: '+%50 Kargo', mult: 1.50 }
+        ];
+      } else {
+        colDefinitions = [
+          { label: '-%10 Maliyet', mult: 0.90 },
+          { label: 'Baz maliyet', mult: 1.0, isBase: true },
+          { label: '+%15 şok', mult: 1.15 },
+          { label: '+%30 şok', mult: 1.30 }
+        ];
+      }
+
+      if (theadRow) {
+        let theadHtml = '<th class="py-2.5 px-3 font-semibold text-slate-700">Fiyat \\ Şok</th>';
+        colDefinitions.forEach(col => {
+          theadHtml += `<th class="py-2.5 px-3 text-right ${col.isBase ? 'font-bold text-slate-900 bg-slate-50' : 'font-medium text-slate-600'}">${col.label}</th>`;
+        });
+        theadRow.innerHTML = theadHtml;
+      }
+
+      const priceMultipliers = [0.85, 0.95, 1.0, 1.10, 1.20];
+
+      priceMultipliers.forEach(pMult => {
+        const rowPrice = Math.round(basePrice * pMult);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+
+        const isBasePrice = (pMult === 1.0);
+        let cellsHtml = `<td class="py-2.5 px-3 font-semibold text-slate-900 ${isBasePrice ? 'bg-slate-100/70 font-bold' : ''}">₺${rowPrice} ${isBasePrice ? '<span class="text-[10px] text-brand-700 font-normal">(Baz)</span>' : ''}</td>`;
+
+        colDefinitions.forEach(col => {
+          let cellVC = 0;
+          if (matrixShockTarget === 'leather') {
+            cellVC = (baseLeatherCost * col.mult) + baseLaborCost + baseOtherCost;
+          } else if (matrixShockTarget === 'shipping') {
+            cellVC = baseLeatherCost + baseLaborCost + (baseOtherCost * col.mult);
+          } else {
+            cellVC = baseVC * col.mult;
+          }
+
+          const cellCM = rowPrice - cellVC;
+          const cellProfit = Math.round((cellCM * targetQ) - fc);
+
+          let cellClass = "";
+          if (cellProfit < 0) {
+            cellClass = "bg-rose-50 text-rose-700 font-semibold";
+          } else if (isBasePrice && col.isBase) {
+            cellClass = "bg-blue-50 text-blue-700 font-bold border border-blue-200";
+          } else {
+            cellClass = "bg-emerald-50 text-emerald-700 font-medium";
+          }
+
+          cellsHtml += `<td class="py-2.5 px-3 text-right font-display tabular-nums ${cellClass}">₺${cellProfit.toLocaleString('tr-TR')}</td>`;
+        });
+
+        tr.innerHTML = cellsHtml;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- MODAL YÖNETİMİ ---
+    function openModal() {
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    function openEditModal() {
+      const p = products[currentProductIndex];
+      document.getElementById('edit-name').value = p.name;
+      document.getElementById('edit-target-sales').value = p.target_sales || 20;
+      document.getElementById('edit-product-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-product-modal').classList.add('hidden');
+    }
+
+    function saveProductEdits() {
+      const p = products[currentProductIndex];
+      const newName = document.getElementById('edit-name').value.trim();
+      const newTarget = parseInt(document.getElementById('edit-target-sales').value) || 20;
+
+      if (newName) {
+        p.name = newName;
+      }
+      p.target_sales = newTarget;
+
+      closeEditModal();
+      selectProduct(currentProductIndex);
+    }
+
+    function deleteCurrentProduct() {
+      if (products.length <= 1) {
+        alert("En az bir ürün bulunmalıdır; son ürünü silemezsiniz.");
+        return;
+      }
+
+      if (confirm(`"${products[currentProductIndex].name}" ürününü silmek istediğinize emin misiniz?`)) {
+        products.splice(currentProductIndex, 1);
+        currentProductIndex = Math.max(0, currentProductIndex - 1);
+        closeEditModal();
+        selectProduct(currentProductIndex);
+      }
+    }
+
+    function saveNewProduct() {
+      const name = document.getElementById('new-name').value.trim() || 'Yeni Ürün';
+      const price = parseFloat(document.getElementById('new-price').value) || 600;
+      const dm2 = parseFloat(document.getElementById('new-dm2').value) || 4;
+      const lPrice = parseFloat(document.getElementById('new-leather-price').value) || 28;
+      const labor = parseFloat(document.getElementById('new-labor').value) || 45;
+      const shipping = parseFloat(document.getElementById('new-shipping').value) || 65;
+
+      const newProd = {
+        id: 'prod_' + Date.now(),
+        name: name,
+        price: price,
+        leather_dm2: dm2,
+        leather_price: lPrice,
+        labor_mins: labor,
+        wage: 150,
+        other_costs: shipping,
+        base_fc: 1000,
+        target_sales: 15
+      };
+
+      products.push(newProd);
+      closeModal();
+      selectProduct(products.length - 1);
+    }
+
+    // Varsayılan tarih alanlarını başlat
+    function initDefaultDates() {
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(today.getDate() - 30);
+
+      document.getElementById('custom-start-date').value = start.toISOString().split('T')[0];
+      document.getElementById('custom-end-date').value = today.toISOString().split('T')[0];
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initDefaultDates();
+      renderTabs();
+      selectProduct(0);
+    });
+  </script>
+</body>
+</html>
